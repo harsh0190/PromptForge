@@ -52,7 +52,7 @@ const PromptInput = ({
           placeholder={placeholder}
           disabled={loading}
           rows={3}
-          className="w-full p-4 pb-2 resize-none placeholder:text-white/80 outline-none bg-transparent text-white text-base"
+          className="w-full p-4 pb-2 resize-none placeholder:text-white/50 outline-none bg-transparent text-white text-base"
         />
 
         <div className="flex items-center justify-between pb-3 px-3 gap-2">
@@ -66,14 +66,14 @@ const PromptInput = ({
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
-              className=" text-white hover:text-white p-1 cursor-pointer flex items-center justify-center"
+              className=" border border-white/10 text-white/80 hover:text-white hover:border-white/40 p-1 rounded-md cursor-pointer flex items-center justify-center"
             >
               <MicIcon size={18} />
             </button>
             <button
               type="submit"
               disabled={!value.trim() || loading}
-              className=" text-white bg-red-900 hover:bg-red-900 p-1.5 cursor-pointer flex items-center justify-center rounded-full disabled:opacity-40"
+              className=" text-white bg-red-600 hover:bg-red-800 p-1.5 cursor-pointer flex items-center justify-center rounded-full disabled:opacity-40"
             >
               {loading ? (
                 <Loader2Icon size={18} className="animate-spin" />
