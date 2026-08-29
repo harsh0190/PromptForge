@@ -172,6 +172,23 @@ export function AppContextProvider({ children }) {
     [user],
   );
 
+  const handleChat = useCallback(
+    async (prompt) => {
+      if(!user || !activeProject) return;
+      setChatLoading(true);
+      try {
+        const{data} = await api.post(`/api/projects/${activeProject._id}/chat`, {prompt})
+        setActiveProject(data)
+        
+      } catch (error) {
+        toast.error(error?.response?.data?.error || "Revision request failed")
+      }
+      finally{
+        setChatLoading(false)
+      }
+    }, [activeProject, user]
+  )
+
   return (
     <AppContext.Provider
       value={{

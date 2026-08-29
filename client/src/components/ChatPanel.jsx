@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import PromptInput from "./PromptInput";
+import { BotMessageSquareIcon, UserIcon } from "lucide-react";
 
 const ChatPanel = ({ messages, onSend, loading }) => {
   const bottomRef = useRef(null);
@@ -22,10 +23,10 @@ const ChatPanel = ({ messages, onSend, loading }) => {
         {messages.map((msg, i) => (
           <div key={i}>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wider">
-                {msg.role === "user" ? "You" : "AI"}
+              <p className="text-xs font-medium text-zinc-500 mb-1 tracking-wider">
+                {msg.role === "user" ? (<UserIcon size={14}/>) : (<BotMessageSquareIcon size={14}/>)}
               </p>
-              <p className="text=[10px] text-zinc-700 leading- tracking-wider whitespace-pre-wrap wrap-break-word">
+              <p className="text-sm text-zinc-700 leading- tracking-wider whitespace-pre-wrap wrap-break-word">
                 {msg.content.split("- ` /").map((text, i) => (
                   <span key={i} className="block mt-1">
                     <span className={i === 0 ? "hidden" : ""}>- ` /</span>

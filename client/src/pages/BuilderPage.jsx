@@ -5,6 +5,7 @@ import Loading from "../components/Loading";
 import BuilderHeader from "../components/BuilderHeader";
 import { FolderTreeIcon, MessageSquareIcon } from "lucide-react";
 import ChatPanel from "../components/ChatPanel";
+import FileExplorer from "../components/FileExplorer";
 
 const BuilderPage = () => {
   const { id } = useParams();
@@ -12,7 +13,7 @@ const BuilderPage = () => {
   const [leftTab, setLeftTab] = useState("chat");
   const [publishing, setPublishing] = useState(false);
   const [publishUrl, setPublishUrl] = useState(null);
-  const [chatLoading, setChatLoading] = useState(false);
+
 
   const {
     activeProject,
@@ -22,7 +23,7 @@ const BuilderPage = () => {
     setActiveFile,
     setShowCode,
     loadProject,
-    logout,
+    logout, chatLoading, handleChat
   } = useAppContext();
 
   useEffect(() => {
@@ -48,7 +49,6 @@ const BuilderPage = () => {
     window.open(`/preview/${id}`, "_blank");
   };
 
-  const handleChat = () => {};
 
   const handlePublish = () => {};
 
@@ -92,12 +92,17 @@ const BuilderPage = () => {
               <FolderTreeIcon size={13} /> Files
             </button>
           </div>
+
+          {/* Sidebar Contents */}
           <div className="flex-1 overflow-hidden">
             {
               leftTab === 'chat' ? (
                 <ChatPanel messages={activeProject.messages} onSend={handleChat} loading={chatLoading}/>
               ) : (
-                <div>Files Panel</div>
+                <FileExplorer files={activeProject.files} activeFile={activeFile} onFileSelect={(path)=>{
+                  setActiveFile(path)
+                  setShowCode(true)
+                }}/>
               )
             }
           </div>
