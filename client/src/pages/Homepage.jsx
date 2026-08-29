@@ -91,10 +91,13 @@ const Homepage = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <button onClick={(e)=>{
-                        e.stopPropagation();
-                        handleDelete(p._id)
-                      }} className="border border-white/10 text-zinc-200 hover:text-red-400 hover:border-white/40 p-1.5 rounded-md cursor-pointer transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(p._id);
+                        }}
+                        className="border border-white/10 text-zinc-200 hover:text-red-400 hover:border-white/40 p-1.5 rounded-md cursor-pointer transition-opacity"
+                      >
                         <Trash2Icon size={14} />
                       </button>
                     </div>

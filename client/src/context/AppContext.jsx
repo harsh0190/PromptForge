@@ -79,7 +79,7 @@ export function AppContextProvider({ children }) {
   };
 
   //Projects Actions
-  const loadProjects = async () => {
+  const loadProjects = useCallback(async () => {
     if (!user) return;
     try {
       const { data } = await api.get("/api/projects");
@@ -89,33 +89,36 @@ export function AppContextProvider({ children }) {
     } finally {
       setLoadingProjects(false);
     }
-  };
+  }, [user]);
 
-  const loadProject = async (id) => {
-    if (!user) return;
-    if (!silent) setLoadingActiveProject(true);
-    try {
-      const { data } = await api.get(`/api/projects/${id}`);
-      setActiveProject(data);
+  const loadProject = useCallback(
+    async (id, silent = false) => {
+      if (!user) return;
+      if (!silent) setLoadingActiveProject(true);
+      try {
+        const { data } = await api.get(`/api/projects/${id}`);
+        setActiveProject(data);
 
-      //Default file selection
-      const files = Object.keys(data.files);
-      if (files.length > 0) {
-        setActiveFile((prev) => {
-          if (files.includes(prev)) return prev;
-          if (files.includes("/App.js")) return "/App.js";
-          return files[0];
-        });
+        //Default file selection
+        const files = Object.keys(data.files);
+        if (files.length > 0) {
+          setActiveFile((prev) => {
+            if (files.includes(prev)) return prev;
+            if (files.includes("/App.js")) return "/App.js";
+            return files[0];
+          });
+        }
+      } catch (error) {
+        if (!silent) {
+          toast.error("Failed to load projects details");
+          navigate("/");
+        }
+      } finally {
+        if (!silent) setLoadingActiveProject(false);
       }
-    } catch (error) {
-      if (!silent) {
-        toast.error("Failed to load projects details");
-        navigate("/");
-      }
-    } finally {
-      if (!silent) setLoadingActiveProject(false);
-    }
-  };
+    },
+    [user],
+  );
 
   //Project status
   useEffect(() => {
@@ -133,7 +136,7 @@ export function AppContextProvider({ children }) {
     } else {
       setChatLoading(false);
     }
-  }, [activeProject?._id, activeProject?._status, loadProject, user]);
+  }, [activeProject?._id, activeProject?.status, loadProject, user]);
 
   const handleGenerate = useCallback(
     async (prompt) => {
@@ -160,11 +163,7 @@ export function AppContextProvider({ children }) {
 
       try {
         await api.delete(`/api/projects/${id}`);
-        setProjects((prev) => {
-          prev.filter((p) => {
-            p._id !== id;
-          });
-        });
+        setProjects((prev) => prev.filter((p) => p._id !== id));
         toast.success("Project deleted successfully");
       } catch (error) {
         toast.error("Failed to delete project");
@@ -180,6 +179,7 @@ export function AppContextProvider({ children }) {
         loadingUser,
         login,
         register,
+        logout,
         projects,
         loadingProjects,
         activeProject,

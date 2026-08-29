@@ -23,12 +23,12 @@ const PromptInput = ({
     }
   }, [autoFocus]);
 
-  const handleSubmit = (e) => {
-    if (e) e.preventDefault();
-    const trimmed = value.trim();
-    if (!trimmed || loading) return;
-    onSubmit(trimmed);
-    setValue("");
+  const handleSubmit = async (e) => {
+    try {
+      await onSubmit(trimmed);
+    } catch {
+      setValue(trimmed);
+    }
   };
 
   const handleKeyDown = (e) => {
