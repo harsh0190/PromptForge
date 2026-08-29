@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../components/Loading";
@@ -6,6 +6,7 @@ import BuilderHeader from "../components/BuilderHeader";
 import { FolderTreeIcon, MessageSquareIcon } from "lucide-react";
 import ChatPanel from "../components/ChatPanel";
 import FileExplorer from "../components/FileExplorer";
+import PreviewPanel from "../components/PreviewPanel";
 
 const BuilderPage = () => {
   const { id } = useParams();
@@ -13,7 +14,6 @@ const BuilderPage = () => {
   const [leftTab, setLeftTab] = useState("chat");
   const [publishing, setPublishing] = useState(false);
   const [publishUrl, setPublishUrl] = useState(null);
-
 
   const {
     activeProject,
@@ -23,7 +23,9 @@ const BuilderPage = () => {
     setActiveFile,
     setShowCode,
     loadProject,
-    logout, chatLoading, handleChat
+    logout,
+    chatLoading,
+    handleChat,
   } = useAppContext();
 
   useEffect(() => {
@@ -33,22 +35,24 @@ const BuilderPage = () => {
 
   useEffect(() => {
     if (!id || !activeProject) return;
-    if (
+
+    const isGenerating =
       activeProject.status === "pending" ||
-      activeProject.status === "generating"
-    ) {
-      const interval = setInterval(() => {
-        loadProject(id, true);
-      }, 1500);
-    }
+      activeProject.status === "generating";
+
+    if (!isGenerating) return;
+
+    const interval = setInterval(() => {
+      loadProject(id, true);
+    }, 1500);
+
     return () => clearInterval(interval);
-  }, [id, loadProject, activeProject]);
+  }, [id, activeProject?.status, loadProject]);
 
   const handleOpenPreview = () => {
     if (!id) return;
     window.open(`/preview/${id}`, "_blank");
   };
-
 
   const handlePublish = () => {};
 
@@ -74,7 +78,7 @@ const BuilderPage = () => {
       />
 
       {/* Main Layout */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 min-w-0 overflow-hidden">
         {/* Left Sidebar */}
         <div className="w-[320px] shrink-0 flex flex-col border-r border-zinc-200 bg-white">
           <div className="flex border-b border-zinc-100">
@@ -95,20 +99,39 @@ const BuilderPage = () => {
 
           {/* Sidebar Contents */}
           <div className="flex-1 overflow-hidden">
-            {
-              leftTab === 'chat' ? (
-                <ChatPanel messages={activeProject.messages} onSend={handleChat} loading={chatLoading}/>
-              ) : (
-                <FileExplorer files={activeProject.files} activeFile={activeFile} onFileSelect={(path)=>{
-                  setActiveFile(path)
-                  setShowCode(true)
-                }}/>
-              )
-            }
+            {leftTab === "chat" ? (
+              <ChatPanel
+                messages={activeProject.messages}
+                onSend={handleChat}
+                loading={chatLoading}
+              />
+            ) : (
+              <FileExplorer
+                files={activeProject.files}
+                activeFile={activeFile}
+                onFileSelect={(path) => {
+                  setActiveFile(path);
+                  setShowCode(true);
+                }}
+              />
+            )}
           </div>
         </div>
 
         {/* Code Area */}
+        <div className="flex-1 min-w-0 min-h-0 overflow-hidden">
+          {activeProject.status === "pending" ||
+          activeProject.status === "generating" ||
+          activeProject.status === "failed" ? (
+            <Loading />
+          ) : (
+            <PreviewPanel
+              project={activeProject}
+              activeFile={activeFile}
+              showCode={showCode}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

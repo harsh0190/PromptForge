@@ -1,8 +1,9 @@
-import { createContext, useCallback, useEffect } from "react";
+import { createContext, useCallback, useEffect, useMemo } from "react";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api/api";
+import debounce from "lodash.debounce";
 
 const AppContext = createContext();
 
@@ -174,20 +175,48 @@ export function AppContextProvider({ children }) {
 
   const handleChat = useCallback(
     async (prompt) => {
-      if(!user || !activeProject) return;
+      if (!user || !activeProject) return;
       setChatLoading(true);
       try {
-        const{data} = await api.post(`/api/projects/${activeProject._id}/chat`, {prompt})
-        setActiveProject(data)
-        
+        const { data } = await api.post(
+          `/api/projects/${activeProject._id}/chat`,
+          { prompt },
+        );
+        setActiveProject(data);
       } catch (error) {
-        toast.error(error?.response?.data?.error || "Revision request failed")
+        toast.error(error?.response?.data?.error || "Revision request failed");
+      } finally {
+        setChatLoading(false);
       }
-      finally{
-        setChatLoading(false)
-      }
-    }, [activeProject, user]
-  )
+    },
+    [activeProject, user],
+  );
+
+  const debouncedSave = useMemo(
+    () =>
+      debounce(async (files, id) => {
+        try {
+          await api.put(`/api/projects/${id}/files`, { files });
+        } catch (error) {
+          toast.error("Failed to save code modifications");
+        }
+      }, 1000),
+    [],
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedSave.cancel();
+    };
+  }, [debouncedSave]);
+
+  const updateProjectFiles = useCallback(
+    async (params) => {
+      if (!activeFile || !user) return;
+      debouncedSave(files, activeProject._id);
+    },
+    [activeProject, user, debouncedSave],
+  );
 
   return (
     <AppContext.Provider
@@ -211,6 +240,7 @@ export function AppContextProvider({ children }) {
         loadProjects,
         handleGenerate,
         handleDelete,
+        updateProjectFiles,
       }}
     >
       {children}
