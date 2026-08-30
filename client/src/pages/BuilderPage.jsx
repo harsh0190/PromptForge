@@ -1,12 +1,17 @@
 import React, { act, useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { useNavigate, useParams } from "react-router-dom";
+import AgentProgressDashboard from "../components/AgentProgressDashboard";
 import Loading from "../components/Loading";
 import BuilderHeader from "../components/BuilderHeader";
 import { FolderTreeIcon, MessageSquareIcon } from "lucide-react";
 import ChatPanel from "../components/ChatPanel";
 import FileExplorer from "../components/FileExplorer";
 import PreviewPanel from "../components/PreviewPanel";
+import PublishModal from "../components/PublishModal";
+import api from "../api/api";
+import toast from "react-hot-toast";
+import { exportProjectZip } from "../utils/exportProject";
 
 const BuilderPage = () => {
   const { id } = useParams();
@@ -33,30 +38,30 @@ const BuilderPage = () => {
     loadProject(id);
   }, [id]);
 
-  useEffect(() => {
-    if (!id || !activeProject) return;
-
-    const isGenerating =
-      activeProject.status === "pending" ||
-      activeProject.status === "generating";
-
-    if (!isGenerating) return;
-
-    const interval = setInterval(() => {
-      loadProject(id, true);
-    }, 1500);
-
-    return () => clearInterval(interval);
-  }, [id, activeProject?.status, loadProject]);
-
   const handleOpenPreview = () => {
     if (!id) return;
     window.open(`/preview/${id}`, "_blank");
   };
 
-  const handlePublish = () => {};
+  const handlePublish = async () => {
+    if (!id) return;
+    setPublishing(true);
+    try {
+      await api.post(`/api/projects/${id}/publish`);
+      const url = `${window.location.origin}/publish/${id}`;
+      setPublishUrl(url);
+      toast.success("Website published successfully!");
+    } catch (error) {
+      toast.error(error?.response?.data?.error || "Publish failed");
+    } finally {
+      setPublishing(false);
+    }
+  };
 
-  const handleDownload = () => {};
+  const handleDownload = () => {
+    if (!activeProject) return;
+    exportProjectZip(activeProject);
+  };
 
   if (loadingActiveProject || !activeProject) {
     return <Loading />;
@@ -123,7 +128,7 @@ const BuilderPage = () => {
           {activeProject.status === "pending" ||
           activeProject.status === "generating" ||
           activeProject.status === "failed" ? (
-            <Loading />
+            <AgentProgressDashboard project={activeProject} />
           ) : (
             <PreviewPanel
               project={activeProject}
@@ -133,6 +138,12 @@ const BuilderPage = () => {
           )}
         </div>
       </div>
+      {publishUrl && (
+        <PublishModal
+          publishUrl={publishUrl}
+          onClose={() => setPublishUrl(null)}
+        />
+      )}
     </div>
   );
 };

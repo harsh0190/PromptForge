@@ -91,7 +91,7 @@ const PreviewPanel = ({ project, activeFile, showCode }) => {
         options={{
           externalResources: [
             "https://cdn.tailwindcss.com",
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css",
+            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
           ],
           logLevel: 0,
         }}
@@ -122,16 +122,19 @@ const PreviewPanel = ({ project, activeFile, showCode }) => {
           style={{
             width: "100%",
             height: "100%",
-            display: "flex",
-            flex: 1,
-            minWidth: 0,
-            minHeight: 0,
+            position: "relative",
             border: "none",
             borderRadius: 0,
             background: "transparent",
           }}
         >
-          {showCode ? (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: showCode ? "block" : "none",
+            }}
+          >
             <SandpackCodeEditor
               showTabs={false}
               showLineNumbers
@@ -140,12 +143,17 @@ const PreviewPanel = ({ project, activeFile, showCode }) => {
               style={{
                 width: "100%",
                 height: "100%",
-                flex: 1,
-                minWidth: 0,
-                minHeight: 0,
               }}
             />
-          ) : (
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: showCode ? "none" : "block",
+            }}
+          >
             <SandpackPreview
               showNavigator={false}
               showRefreshButton
@@ -153,12 +161,9 @@ const PreviewPanel = ({ project, activeFile, showCode }) => {
               style={{
                 width: "100%",
                 height: "100%",
-                flex: "1 1 100%",
-                minWidth: 0,
-                minHeight: 0,
               }}
             />
-          )}
+          </div>
         </SandpackLayout>
       </SandpackProvider>
     </div>
