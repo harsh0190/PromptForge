@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Trash2Icon } from "lucide-react";
 import { homeTags } from "../assets/assets";
 
-const Homepage = () => {
+const HomePage = () => {
   const navigate = useNavigate();
   const {
     user,
@@ -129,4 +129,4 @@ const Homepage = () => {
   );
 };
 
-export default Homepage;
+export default HomePage;

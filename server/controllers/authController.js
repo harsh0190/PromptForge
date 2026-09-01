@@ -49,19 +49,19 @@ export async function login(req, res) {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(400).json({ error: "All fields are mandatory" });
+    res.status(400).json({ error: "All fields are mandatory!" });
     return;
   }
 
-  const user = await User.findOne({ email: email.toLowerCase().trim });
+  const user = await User.findOne({ email: email.toLowerCase().trim() });
   if (!user) {
-    res.status(401).json({ error: "Account does not exists" });
+    res.status(401).json({ error: "Account does not exist!" });
     return;
   }
 
   const isValid = await user.comparePassword(password);
   if (!isValid) {
-    res.status(401).json({ error: "Invalid email or password" });
+    res.status(401).json({ error: "Invalid email or password!" });
     return;
   }
 
@@ -77,7 +77,7 @@ export async function login(req, res) {
 }
 
 export async function logout(_req, res) {
-  res.cookie("token", token, {
+  res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

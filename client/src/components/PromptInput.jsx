@@ -24,8 +24,12 @@ const PromptInput = ({
   }, [autoFocus]);
 
   const handleSubmit = async (e) => {
+    e?.preventDefault?.();
+    const trimmed = value.trim();
+    if (!trimmed || loading) return;
     try {
       await onSubmit(trimmed);
+      setValue("");
     } catch {
       setValue(trimmed);
     }

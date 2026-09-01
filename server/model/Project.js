@@ -33,7 +33,7 @@ const ProjectSchema = new Schema(
     published: { type: Boolean, default: false },
     status: {
       type: String,
-      enum: ["pending", "generating", "revising", "completed", "failed"],
+      enum: ["pending", "generating", "revising", "completed", "failed", "error"],
       default: "pending",
     },
     filesPlanned: { type: [FilesPlannedSchema], default: [] },

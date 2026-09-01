@@ -1,4 +1,4 @@
-import Router from "express";
+import express from "express";
 import {
   createProject,
   getPublicProject,
@@ -11,7 +11,7 @@ import {
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { chat } from "../controllers/chatController.js";
 
-const projectRouter = Router();
+const projectRouter = express.Router();
 
 //Public route to get a project by ID
 projectRouter.get("/public/:id", getPublicProject);

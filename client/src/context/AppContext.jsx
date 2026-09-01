@@ -47,7 +47,7 @@ export function AppContextProvider({ children }) {
       toast.success("Welcome back!");
       navigate("/");
     } catch (err) {
-      toast.error(err.response.data.message);
+      toast.error(err.response?.data?.error || "Login failed");
     }
   };
 
@@ -62,7 +62,7 @@ export function AppContextProvider({ children }) {
       toast.success("Account created successfully");
       navigate("/");
     } catch (err) {
-      toast.error(err.response.data.message);
+      toast.error(err.response?.data?.error || "Registration failed");
     }
   };
 
@@ -211,11 +211,11 @@ export function AppContextProvider({ children }) {
   }, [debouncedSave]);
 
   const updateProjectFiles = useCallback(
-    async (params) => {
-      if (!activeFile || !user) return;
+    async (files) => {
+      if (!activeFile || !user || !activeProject) return;
       debouncedSave(files, activeProject._id);
     },
-    [activeProject, user, debouncedSave],
+    [activeFile, activeProject, user, debouncedSave],
   );
 
   return (

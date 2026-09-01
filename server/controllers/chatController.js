@@ -20,14 +20,18 @@ export async function chat(req, res) {
   if (!prompt || typeof prompt !== "string") {
     return res.status(400).json({ error: "Invalid prompt" });
   }
-  if (!req.user || !req.user._id) {
+  if (!req.user || !req.user.userId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const project = await Project.findOne({
-    _id: req.params.id,
-    owner: req.user._id,
-  });
+  const project = await Project.findOneAndUpdate(
+    {
+      _id: req.params.id,
+      owner: req.user.userId,
+    },
+    { status: "revising" },
+    { returnDocument: "after" }
+  );
   if (!project) {
     return res.status(404).json({ error: "Project not found" });
   }
@@ -56,10 +60,10 @@ export async function chat(req, res) {
     );
 
     const result = await reviseProject(
-      recentMessages,
-      relevantFiles,
-      manifest,
       prompt,
+      manifest,
+      relevantFiles,
+      recentMessages,
     );
     console.log(
       `[AI] Got ${result.operations.length} operations, ${result.description}`,

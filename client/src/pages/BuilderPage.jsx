@@ -1,4 +1,4 @@
-import React, { act, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { useNavigate, useParams } from "react-router-dom";
 import AgentProgressDashboard from "../components/AgentProgressDashboard";

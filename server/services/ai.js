@@ -11,7 +11,6 @@ import {
   FILE_PLAN_SYSTEM,
   REVISE_SYSTEM,
 } from "./prompts.js";
-import { el } from "zod/v4/locales";
 import { normalizeContent } from "./contentNormalizer.js";
 import {
   validateAndFixCode,

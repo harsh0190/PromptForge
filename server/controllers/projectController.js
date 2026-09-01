@@ -11,18 +11,15 @@ export async function createProject(req, res) {
   if (!prompt || typeof prompt !== "string") {
     return res.status(400).json({ error: "Invalid prompt" });
   }
-  if (!req.user || !req.user._id) {
+  if (!req.user || !req.user.userId) {
     return res.status(401).json({ error: "Invalid user" });
   }
   const project = await Project.create({
     name: "New Project",
     description: prompt,
     files: {},
-    messages: [
-      { role: "user", content: prompt },
-      { role: "user", content: prompt },
-    ],
-    owner: req.user._id,
+    messages: [{ role: "user", content: prompt }],
+    owner: req.user.userId,
     published: false,
     status: "pending",
     filesPlanned: [],
@@ -57,9 +54,6 @@ export async function runBackgroundGeneration(projectId, prompt) {
         console.log(
           `[Background AI] Plan created for project ${projectId}. Planned${plan.files.length} files.`,
         );
-        const fileList = plan.files
-          .map((f) => `- \`${f.path}\` : ${f.description}`)
-          .join("\n");
         await Project.findByIdAndUpdate(projectId, {
           name: plan.projectName || "New Project",
           filesPlanned: plan.files,
@@ -67,7 +61,7 @@ export async function runBackgroundGeneration(projectId, prompt) {
           $push: {
             messages: {
               role: "assistant",
-              content: `Planned files for the project:\n${fileList}`,
+              content: `Planned ${plan.files.length} file${plan.files.length === 1 ? "" : "s"} — generating now.`,
               timestamp: new Date(),
             },
           },
@@ -135,12 +129,12 @@ export async function runBackgroundGeneration(projectId, prompt) {
 }
 
 export async function listProjects(req, res) {
-  if (!req.user || !req.user._id) {
+  if (!req.user || !req.user.userId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
   const projects = await Project.find(
-    { owner: req.user._id },
+    { owner: req.user.userId },
     {
       name: 1,
       description: 1,
@@ -152,13 +146,13 @@ export async function listProjects(req, res) {
 }
 
 export async function getProject(req, res) {
-  if (!req.user || !req.user._id) {
+  if (!req.user || !req.user.userId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
   const project = await Project.findOne({
     _id: req.params.id,
-    owner: req.user._id,
+    owner: req.user.userId,
   });
 
   if (!project) {
@@ -187,13 +181,13 @@ export async function getProject(req, res) {
 }
 
 export async function deleteProject(req, res) {
-  if (!req.user || !req.user._id) {
+  if (!req.user || !req.user.userId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
   const result = await Project.findOneAndDelete({
     _id: req.params.id,
-    owner: req.user._id,
+    owner: req.user.userId,
   });
 
   if (!result) {
@@ -208,13 +202,13 @@ export async function updateProjectFiles(req, res) {
   if (!files || typeof files !== "object") {
     return res.status(400).json({ error: "Invalid files object" });
   }
-  if (!req.user || !req.user._id) {
+  if (!req.user || !req.user.userId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
   const project = await Project.findOne({
     _id: req.params.id,
-    owner: req.user._id,
+    owner: req.user.userId,
   });
   if (!project) {
     return res.status(404).json({ error: "Project not found" });
@@ -247,13 +241,13 @@ export async function updateProjectFiles(req, res) {
 }
 
 export async function publishProject(req, res) {
-  if (!req.user || !req.user._id) {
+  if (!req.user || !req.user.userId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  const project = await Project.findOne(
+  const project = await Project.findOneAndUpdate(
     {
       _id: req.params.id,
-      owner: req.user._id,
+      owner: req.user.userId,
     },
     { published: true },
     { returnDocument: "after" },
@@ -270,6 +264,10 @@ export async function getPublicProject(req, res) {
     _id: req.params.id,
     published: true,
   });
+
+  if (!project) {
+    return res.status(404).json({ error: "Project not found" });
+  }
 
   if (!project.published) {
     return res.status(403).json({ error: "Project is not published yet" });
