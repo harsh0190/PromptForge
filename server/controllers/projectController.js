@@ -1,5 +1,6 @@
-import Project from "../models/Project.js";
+import Project from "../model/Project.js";
 import crypto from "crypto";
+import { generateProject } from "../services/ai.js";
 
 function hashContent(content) {
   return crypto.createHash("md5").update(content).digest("hex").slice(0, 12);
@@ -49,7 +50,88 @@ export async function createProject(req, res) {
 }
 
 export async function runBackgroundGeneration(projectId, prompt) {
-    
+  try {
+    console.log(`[Background AI] Starting generation for project ${projectId}`);
+    const result = await generateProject(prompt, {
+      onPlan: async (plan) => {
+        console.log(
+          `[Background AI] Plan created for project ${projectId}. Planned${plan.files.length} files.`,
+        );
+        const fileList = plan.files
+          .map((f) => `- \`${f.path}\` : ${f.description}`)
+          .join("\n");
+        await Project.findByIdAndUpdate(projectId, {
+          name: plan.projectName || "New Project",
+          filesPlanned: plan.files,
+          status: "generating",
+          $push: {
+            messages: {
+              role: "assistant",
+              content: `Planned files for the project:\n${fileList}`,
+              timestamp: new Date(),
+            },
+          },
+        });
+      },
+      onFileStart: async (filePath) => {
+        console.log(
+          `[Background AI] Starting file ${filePath} for project ${projectId}`,
+        );
+        await Project.findByIdAndUpdate(projectId, {
+          currentFile: filePath,
+        });
+      },
+      onFileComplete: async (filePath, code) => {
+        console.log(
+          `[Background AI] Completed file ${filePath} for project ${projectId}`,
+        );
+        const project = await Project.findByIdAndUpdate(projectId);
+        if (project) {
+          project.files = project.files || {};
+          project.files[filePath] = { content: code, hash: hashContent(code) };
+          project.filesGenerated = [...project.filesGenerated, filePath];
+          project.messages.push({
+            role: "assistant",
+            content: `Generated file \`${filePath}\``,
+            timestamp: new Date(),
+          });
+          project.currentFile = null;
+          project.markModified("files");
+          await project.save();
+        }
+      },
+    });
+    console.log(`[Background AI] Successfully generated project ${projectId}`);
+    const project = await Project.findById(projectId);
+    if (project) {
+      project.status = "completed";
+      if (result.description) {
+        project.name = result.description;
+      }
+      project.messages.push({
+        role: "assistant",
+        content: `Project generation completed successfully.`,
+        timestamp: new Date(),
+      });
+      await project.save();
+    }
+  } catch (err) {
+    console.error(
+      `[Background AI] Error during generation for project ${projectId}:`,
+      err,
+    );
+    await Project.findByIdAndUpdate(projectId, {
+      status: "error",
+      error: err.message,
+      $push: {
+        messages: {
+          role: "assistant",
+          content: `❌ Generation failed: ${err.message}`,
+          timestamp: new Date(),
+        },
+      },
+    });
+  }
 }
 
 export async function listProjects(req, res) {
