@@ -14,7 +14,7 @@ import { chat } from "../controllers/chatController.js";
 const projectRouter = Router();
 
 //Public route to get a project by ID
-projectRouter.get("public/:id", getPublicProject);
+projectRouter.get("/public/:id", getPublicProject);
 
 projectRouter.use(authMiddleware); // Apply authentication middleware to all routes below
 
