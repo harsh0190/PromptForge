@@ -7,17 +7,19 @@ It allows users to generate complete React applications using simple natural lan
 
 ## 🌐 Live Demo
 
-- **Frontend:** https://
-- **Backend API:** https://
+- **Frontend:** https://promptforge-dev.vercel.app
+- **Backend API:** https://promptforge-744l.onrender.com
 
 ---
 
 ## 📸 Screenshots
 
 ### Home
+
 <img src="./home.jpg" alt="Home" width="100%">
 
 ### Application
+
 <table>
   <tr>
     <td><img src="/.jpg" alt="" width="100%"></td>
