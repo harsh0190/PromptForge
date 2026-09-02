@@ -1,4 +1,4 @@
-# 🚀 PromptForge - AI-Powered Full-Stack Application Generator
+# 🚀 PromptForge - AI-Powered Application Generator
 
 PromptForge is a full-stack **AI-powered web application generator** built with the **MERN Stack**.
 It allows users to generate complete React applications using simple natural language prompts, with AI-powered code generation, live preview, file management, editing, publishing, and project export.
@@ -16,18 +16,18 @@ It allows users to generate complete React applications using simple natural lan
 
 ### Home
 
-<img src="./home.jpg" alt="Home" width="100%">
+<img src="./demo/home.jpg" alt="Home" width="100%">
 
 ### Application
 
 <table>
   <tr>
-    <td><img src="/.jpg" alt="" width="100%"></td>
-    <td><img src="/.jpg" alt="" width="100%"></td>
+    <td><img src="./demo/auth.jpg" alt="" width="100%"></td>
+    <td><img src="./demo/preview.jpg" alt="" width="100%"></td>
   </tr>
   <tr>
-    <td><img src="/.jpg" alt="" width="100%"></td>
-    <td><img src="/.jpg" alt="" width="100%"></td>
+    <td><img src="./demo/builder.jpg" alt="" width="100%"></td>
+    <td><img src="./demo/publish.jpg" alt="" width="100%"></td>
   </tr>
 </table>
 
@@ -45,7 +45,6 @@ It allows users to generate complete React applications using simple natural lan
 - 💾 Automatic Project Saving
 - 🚀 One-Click Website Publishing
 - 📦 Download Generated Projects as ZIP
-- ⚡ Vite-Powered Development
 - 🔄 AI-Powered Code Updates
 
 ---
@@ -57,6 +56,22 @@ It allows users to generate complete React applications using simple natural lan
 **Backend:** Node.js, Express.js, MongoDB, Mongoose, JWT, Bcrypt
 
 **AI:** Generative AI API
+
+---
+
+## 🚀 Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/harsh0190/PromptForge.git
+
+# Install dependencies
+cd client && npm install
+cd ../server && npm install
+
+# Start development servers
+npm run dev
+```
 
 ---
 
